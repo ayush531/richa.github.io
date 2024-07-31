@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #222222;
+  overflow: hidden;
+  position: relative;
+}
+
+.cube-container {
+  perspective: 1000px;
+}
+
+.cube {
+  width: 250px; /* Increased size */
+  height: 250px; /* Increased size */
+  position: relative;
+  transform-style: preserve-3d;
+  transform: rotateX(0deg) rotateY(0deg);
+  transition: transform 0.1s;
+}
+
+.face {
+  position: absolute;
+  width: 250px; /* Match cube size */
+  height: 250px; /* Match cube size */
+  background-color: white;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  background-size: cover; /* Ensure the image covers the entire face */
+  background-position: center;
+  background-repeat: no-repeat; /* Ensure no repetition */
+}
+
+.front {
+  transform: translateZ(125px);
+  background-image: url("f1477f2c-752f-40cb-aa78-ae8e403912f4.jpg");
+}
+.back {
+  transform: rotateY(180deg) translateZ(125px);
+  background-image: url("f1477f2c-752f-40cb-aa78-ae8e403912f4.jpg");
+}
+.right {
+  transform: rotateY(90deg) translateZ(125px);
+  background-image: url("ac5adbe6-fd7c-4da7-adc7-8070ef3b51f0.jpg");
+}
+.left {
+  transform: rotateY(-90deg) translateZ(125px);
+  background-image: url("8726f6cd-4b85-49b3-806c-4a549fbed821.jpg");
+}
+.top {
+  transform: rotateX(90deg) translateZ(125px);
+  background-image: url("99b34361-6aea-47ec-9655-653a9a3511db.jpg");
+}
+.bottom {
+  transform: rotateX(-90deg) translateZ(125px);
+  background-image: url("7f1ce27c-6b43-4908-a9e4-53a946450a33.jpg");
+}
+
+.image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 0.5s, background-image 0.5s;
+  pointer-events: none; /* Ensure the overlay doesn't interfere with interactions */
+  z-index: -1; /* Ensure the overlay is behind the cube */
+}
+
+    </style>
+</head>
+<body>
+    <div class="cube-container">
+        <div class="cube">
+          <div class="face front"></div>
+          <div class="face back"></div>
+          <div class="face right"></div>
+          <div class="face left"></div>
+          <div class="face top"></div>
+          <div class="face bottom"></div>
+        </div>
+      </div>
+      <div class="image-overlay"></div>
+      
+</body>
+<script>
+    const cube = document.querySelector(".cube");
+const cubeContainer = document.querySelector(".cube-container");
+const imageOverlay = document.querySelector(".image-overlay");
+let mouseX = 0;
+let mouseY = 0;
+let cubeX = 0;
+let cubeY = 0;
+let autoRotate = true;
+let perspective = 1000;
+
+// Function to rotate the cube automatically
+function rotateCube() {
+  if (autoRotate) {
+    cubeX += 0.5;
+    cubeY += 0.5;
+    cube.style.transform = `rotateX(${cubeX}deg) rotateY(${cubeY}deg)`;
+  }
+  requestAnimationFrame(rotateCube);
+}
+
+document.addEventListener("mousemove", (e) => {
+  autoRotate = false; // Stop auto rotation on mouse move
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+
+  const centerX = window.innerWidth / 2;
+  const centerY = window.innerHeight / 2;
+
+  const deltaX = mouseX - centerX;
+  const deltaY = mouseY - centerY;
+
+  cubeX = deltaY * 0.1;
+  cubeY = deltaX * -0.1;
+
+  cube.style.transform = `rotateX(${cubeX}deg) rotateY(${cubeY}deg)`;
+
+  clearTimeout(resetRotation); // Clear the previous timer
+  resetRotation = setTimeout(() => (autoRotate = true), 1000); // Reset auto rotation after 3 seconds
+});
+
+document.addEventListener("wheel", (e) => {
+  perspective += e.deltaY * 0.5;
+  perspective = Math.max(500, Math.min(2000, perspective)); // Limit the perspective to a range
+  cubeContainer.style.perspective = `${perspective}px`;
+});
+
+// Add hover effect for cube faces
+document.querySelectorAll(".face").forEach((face) => {
+  face.addEventListener("mouseenter", (e) => {
+    imageOverlay.style.backgroundImage = getComputedStyle(face).backgroundImage;
+    imageOverlay.style.opacity = 0.2; // Make the overlay visible
+  });
+
+  face.addEventListener("mouseleave", () => {
+    imageOverlay.style.opacity = 0; // Hide the overlay
+  });
+});
+
+let resetRotation = setTimeout(() => (autoRotate = true), 3000); // Start auto rotation after 3 seconds
+
+rotateCube(); // Initial call to start the rotation
+
+</script>
+</html>
